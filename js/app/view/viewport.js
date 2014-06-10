@@ -105,15 +105,16 @@ exports.Viewport = Backbone.View.extend({
         // TODO make lighting customizable
         // TODO no spot light for images
         this.s_lights = new THREE.Object3D();
-        var pointLightLeft = new THREE.PointLight(0x404040, 1, 0);
-        pointLightLeft.position.set(-100, 0, 100);
+        var pointLightLeft = new THREE.PointLight(0xffffff, 1, 0);
+        pointLightLeft.position.set(-3, 0, 3);
         this.s_lights.add(pointLightLeft);
-        var pointLightRight = new THREE.PointLight(0x404040, 1, 0);
-        pointLightRight.position.set(100, 0, 100);
+        var pointLightRight = new THREE.PointLight(0xffffff, 1, 0);
+        pointLightRight.position.set(3, 0, 3);
         this.s_lights.add(pointLightRight);
         this.scene.add(this.s_lights);
         // add a soft white ambient light
-        this.s_lights.add(new THREE.AmbientLight(0x404040));
+//        this.s_lights.add(new THREE.AmbientLight(0x404040));
+//        this.s_lights.add(new THREE.AmbientLight(0x404040));
 
         this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: false});
         this.renderer.setClearColor(CLEAR_COLOUR, 1);

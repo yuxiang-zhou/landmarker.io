@@ -7,8 +7,9 @@ var Image = require('./image');
 
 "use strict";
 
-var basicMaterial = new THREE.MeshPhongMaterial();
+var basicMaterial = new THREE.MeshLambertMaterial();
 basicMaterial.transparent = true;
+basicMaterial.color = new THREE.Color(0xB8B8B8);
 
 
 var Mesh = Backbone.Model.extend({
