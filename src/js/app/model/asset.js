@@ -60,8 +60,11 @@ const imagePlaceholderMaterial = new THREE.MeshPhongMaterial({
 
 export const Image = Backbone.Model.extend({
 
-    defaults: function () {
-        return { textureOn: true };
+    defaults: function() {
+        return {
+            textureOn: true,
+            geometry: 0
+        };
     },
 
     hasTexture: function() {
@@ -76,14 +79,14 @@ export const Image = Backbone.Model.extend({
         return this.hasOwnProperty('geometry');
     },
 
-    isTextureOn: function () {
+    isTextureOn: function() {
         return this.hasTexture() && this.get('textureOn');
     },
 
     initialize: function() {
         var that = this;
 
-        var meshChanged = function () {
+        var meshChanged = function() {
             that.trigger('newMeshAvailable');
         };
         this.listenTo(this, 'change:geometry', meshChanged);
@@ -92,7 +95,7 @@ export const Image = Backbone.Model.extend({
         this.listenTo(this, 'change:textureOn', meshChanged);
     },
 
-    mesh: function () {
+    mesh: function() {
         // regenerate a THREE.Mesh from the current state. Note that no
         // texture, geometry or material is created in here - we just
         // wire up buffers that we own.
@@ -157,19 +160,19 @@ export const Image = Backbone.Model.extend({
 
     textureOn: function() {
         if (this.isTextureOn() || !this.hasTexture()) {
-            return;  // texture already off or no texture
+            return; // texture already off or no texture
         }
         this.set('textureOn', true);
     },
 
     textureOff: function() {
         if (!this.isTextureOn()) {
-            return;  // texture already on
+            return; // texture already on
         }
         this.set('textureOn', false);
     },
 
-    textureToggle: function () {
+    textureToggle: function() {
         if (this.isTextureOn()) {
             this.textureOff();
         } else {
@@ -177,7 +180,7 @@ export const Image = Backbone.Model.extend({
         }
     },
 
-    loadThumbnail: function () {
+    loadThumbnail: function() {
         if (!this.hasOwnProperty('_thumbnailPromise')) {
             this._thumbnailPromise = this.get('server').fetchThumbnail(this.id).then((material) => {
                 delete this._thumbnailPromise;
@@ -194,7 +197,7 @@ export const Image = Backbone.Model.extend({
         return this._thumbnailPromise;
     },
 
-    loadTexture: function () {
+    loadTexture: function() {
         if (!this.hasOwnProperty('_texturePromise')) {
             this._texturePromise = this.get('server').fetchTexture(this.id).then((material) => {
                 delete this._texturePromise;
@@ -212,7 +215,7 @@ export const Image = Backbone.Model.extend({
     },
 
     // reset this asset back to how it was at fetch time.
-    dispose: function () {
+    dispose: function() {
         if (this.hasGeometry()) {
             this.geometry.dispose();
         }
@@ -257,94 +260,220 @@ export const Image = Backbone.Model.extend({
 
 export const Mesh = Image.extend({
 
-    geometryUrl: function () {
-        return this.get('server').map('meshes/' + this.id);
-    },
+    // geometryUrl: function () {
+    //     return this.get('server').map('meshes/' + this.id);
+    // },
 
-    loadGeometry: function () {
+    loadGeometry: function() {
+
+        var buffetToGeo = (buffer) => {
+
+            var lenMeta = 4;
+            var bytes = 4;
+            var meta = new Uint32Array(buffer, 0, lenMeta);
+            var nTris = meta[0];
+            var isTextured = Boolean(meta[1]);
+            var hasNormals = Boolean(meta[2]);
+            var hasBinning = Boolean(meta[2]); // used for efficient lookup
+            var stride = nTris * 3;
+
+            // Points
+            var pointsOffset = lenMeta * bytes;
+            var points = new Float32Array(buffer, pointsOffset, stride * 3);
+            var normalOffset = pointsOffset + stride * 3 * bytes;
+
+            // Normals (optional)
+            var normals = null; // initialize for no normals
+            var tcoordsOffset = normalOffset; // no normals -> tcoords next
+            if (hasNormals) {
+                // correct if has normals
+                normals = new Float32Array(
+                    buffer, normalOffset, stride * 3);
+                // need to advance the pointer on tcoords offset
+                tcoordsOffset = normalOffset + stride * 3 * bytes;
+            }
+
+            // Tcoords (optional)
+            var tcoords = null; // initialize for no tcoords
+            var binningOffset = tcoordsOffset; // no tcoords -> binning next
+            if (isTextured) {
+                tcoords = new Float32Array(
+                    buffer, tcoordsOffset, stride * 2);
+                binningOffset = tcoordsOffset + stride * 2 * bytes;
+            }
+
+            // Binning (optional)
+            if (hasBinning) {
+                console.log(
+                    'ready to read from binning file at ',
+                    binningOffset
+                );
+            }
+            var geometry = this._newBufferGeometry(points, normals, tcoords);
+            return new THREE.Geometry().fromBufferGeometry(geometry);
+        };
+
+        var decodeExpression = (buffer) => {
+            buffer = buffer.split("\n");
+            var exp_array = [];
+            for (var i = 0; i < buffer.length - 1; i++) {
+                exp_array.push(parseFloat(buffer[i]));
+            }
+
+
+            return exp_array;
+        };
+
         if (this.hasOwnProperty('_geometryPromise')) {
             // already loading this geometry
             return this._geometryPromise;
         }
+        // load geometry
         const arrayPromise = this.get('server').fetchGeometry(this.id);
+        const pcPromises = [];
+        var expPromiss;
+        var expFearPromiss;
+        var expSadPromiss;
+        var expHappyPromiss;
+        var expSurprisePromiss;
+        var expAngerPromiss;
+        var expDisgustPromiss;
 
-        if (arrayPromise.isGeometry) { // Backend says it parses the geometry
-            this._geometryPromise = arrayPromise.then((geometry) => {
-                delete this._geometryPromise;
-                geometry.computeBoundingSphere();
-                geometry.computeFaceNormals();
-                geometry.computeVertexNormals();
+        // load principle components
+        if (this.get('mode') === 'model') {
+            var max_pc = 3;
+            var max_exp = 28;
 
-                this.geometry = geometry;
-                this.trigger('change:geometry');
+            this.max_pc = max_pc;
+            this.max_exp = max_exp;
 
-                return geometry;
-            }, (err) => {
-                console.log('failed to load geometry (OBJ) for ' + this.id);
-                console.log(err);
-            });
-        } else { // Backend sends raw optimised ArrayBuffer through > build 3D
-            this._geometryPromise = arrayPromise.then((buffer) => {
-                // now the promise is fullfilled, delete the promise.
-                delete this._geometryPromise;
-                var geometry;
+            for (var i = 1; i <= max_pc; ++i) {
+                pcPromises.push(this.get('server').fetchGeometry(
+                    this.id.split('-mean')[0] + '-pc-' + i + '.obj'));
+            }
 
-                var lenMeta = 4;
-                var bytes = 4;
-                var meta = new Uint32Array(buffer, 0, lenMeta);
-                var nTris = meta[0];
-                var isTextured = Boolean(meta[1]);
-                var hasNormals = Boolean(meta[2]);
-                var hasBinning = Boolean(meta[2]);  // used for efficient lookup
-                var stride = nTris * 3;
+            for (var i = 1; i <= max_exp; ++i) {
+                pcPromises.push(this.get('server').fetchGeometry(
+                    this.id.split('-mean')[0] + '-pc-exp-' + i + '.obj'));
+            }
 
-                // Points
-                var pointsOffset = lenMeta * bytes;
-                var points = new Float32Array(buffer, pointsOffset, stride * 3);
-                var normalOffset = pointsOffset + stride * 3 * bytes;
+            expPromiss = this.get('server').fetchExpression(
+                this.id.split('-mean')[0]);
+            expFearPromiss = this.get('server').fetchExpression('fear');
+            expSadPromiss = this.get('server').fetchExpression('sad');
+            expHappyPromiss = this.get('server').fetchExpression('happiness');
+            expSurprisePromiss = this.get('server').fetchExpression('surprise');
+            expAngerPromiss = this.get('server').fetchExpression('anger');
+            expDisgustPromiss = this.get('server').fetchExpression('disgust');
 
-                // Normals (optional)
-                var normals = null;  // initialize for no normals
-                var tcoordsOffset = normalOffset;  // no normals -> tcoords next
-                if (hasNormals) {
-                    // correct if has normals
-                    normals = new Float32Array(
-                        buffer, normalOffset, stride * 3);
-                    // need to advance the pointer on tcoords offset
-                    tcoordsOffset = normalOffset + stride * 3 * bytes;
-                }
+            var expPromissAll = [expFearPromiss, expSadPromiss, expHappyPromiss, expSurprisePromiss, expAngerPromiss, expDisgustPromiss];
 
-                // Tcoords (optional)
-                var tcoords = null;  // initialize for no tcoords
-                var binningOffset = tcoordsOffset;  // no tcoords -> binning next
-                if (isTextured) {
-                    tcoords = new Float32Array(
-                        buffer, tcoordsOffset, stride * 2);
-                    binningOffset = tcoordsOffset + stride * 2 * bytes;
-                }
+            if (arrayPromise.isGeometry) { // Backend says it parses the geometry
+                this._geometryPromise = arrayPromise.then((geometry) => {
+                    delete this._geometryPromise;
+                    geometry.computeBoundingSphere();
+                    geometry.computeFaceNormals();
+                    geometry.computeVertexNormals();
 
-                // Binning (optional)
-                if (hasBinning) {
-                    console.log(
-                        'ready to read from binning file at ',
-                        binningOffset
-                    );
-                }
-                geometry = this._newBufferGeometry(points, normals, tcoords);
-                console.log('Asset: loaded Geometry for ' + this.id);
-                this.geometry = geometry;
-                this.trigger('change:geometry');
+                    this.geometry = geometry;
+                    this.trigger('change:geometry');
 
-                return geometry;
-            }, (err) => {
-                console.log('failed to load geometry (AB) for ' + this.id);
-                console.log(err);
-            });
+                    return geometry;
+                }, (err) => {
+                    console.log('failed to load geometry (OBJ) for ' + this.id);
+                    console.log(err);
+                });
+            } else { // Backend sends raw optimised ArrayBuffer through > build 3D
+
+                // eigen faces
+                pcPromises.forEach((pcPromise, index) => {
+
+                    pcPromise.then((buffer) => {
+
+                        console.log('Asset: loaded PC Geometry for ' + index);
+                        this._pcPromises[index] = undefined;
+
+                        var pcgeometry = buffetToGeo(buffer);
+                        if (!this.pcgeometries) {
+                            this.pcgeometries = {};
+                        }
+
+                        this.pcgeometries[index] = pcgeometry;
+
+                        this.trigger('change:geometry');
+
+                        return pcgeometry;
+                    }, (err) => {
+                        console.log('failed to load PC geometry (AB) for ' + index);
+                        console.log(err);
+                    });
+
+                });
+
+                this._pcPromises = pcPromises;
+
+                // model
+                this._geometryPromise = arrayPromise.then((buffer) => {
+                    // now the promise is fullfilled, delete the promise.
+                    delete this._geometryPromise;
+
+                    var geometry = buffetToGeo(buffer);
+
+                    this.geometry = geometry;
+
+                    console.log('Asset: loaded Geometry for ' + this.id);
+                    this.trigger('change:geometry');
+
+                    return geometry;
+                }, (err) => {
+                    console.log('failed to load geometry (AB) for ' + this.id);
+                    console.log(err);
+                });
+
+                // expression
+                this._expPromiss = expPromiss.then((buffer) => {
+                    // now the promise is fullfilled, delete the promise.
+                    delete this._expPromiss;
+
+                    var exp = decodeExpression(buffer);
+                    this.restore_exp = exp;
+
+                    return exp;
+                }, (err) => {
+                    console.log('failed to load geometry (AB) for ' + this.id);
+                    console.log(err);
+                });
+
+                expPromissAll.forEach((expPromiss, index) => {
+
+                    expPromiss.then((buffer) => {
+                        // now the promise is fullfilled, delete the promise.
+                        delete this._expPromiss;
+
+                        var exp = decodeExpression(buffer);
+
+                        if (!this.basic_exp) {
+                            this.basic_exp = [];
+                        }
+
+                        this.basic_exp[index] = exp;
+
+                        return exp;
+                    }, (err) => {
+                        console.log('failed to load geometry (AB) for ' + this.id);
+                        console.log(err);
+                    });
+
+                });
+
+            }
         }
 
         // mirror the arrayPromise xhr() API
         this._geometryPromise.xhr = () => {
-            return arrayPromise.xhr ? arrayPromise.xhr() : {abort: () => null};
+            return arrayPromise.xhr ? arrayPromise.xhr() : {
+                abort: () => null
+            };
         };
         // return a promise that this Meshes Geometry will be correctly
         // configured. Can access the raw underlying xhr request at xhr().
@@ -355,6 +484,7 @@ export const Mesh = Image.extend({
     _newBufferGeometry: function(points, normals, tcoords) {
         const geometry = new THREE.BufferGeometry();
         geometry.addAttribute('position', new THREE.BufferAttribute(points, 3));
+
         if (normals) {
             geometry.addAttribute('normal', new THREE.BufferAttribute(normals, 3));
         } else {

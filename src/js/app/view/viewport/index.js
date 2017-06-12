@@ -159,7 +159,7 @@ export default Backbone.View.extend({
         // when the camera updates, render
         this.cameraController.on('change', this.update);
 
-        if (!this.model.meshMode()) {
+        if (!(this.model.meshMode() || this.model.modelMode())) {
             // for images, default to orthographic camera
             // (note that we use toggle to make sure the UI gets updated)
             this.toggleCamera();
@@ -260,7 +260,7 @@ export default Backbone.View.extend({
         function animate() {
             requestAnimationFrame(animate);
             // uncomment to monitor FPS performance
-            //stats.update();
+            // stats.update();
         }
 
         this.$container.on('groupSelected', () => {
@@ -301,13 +301,16 @@ export default Backbone.View.extend({
         mesh = meshPayload.mesh;
         up = meshPayload.up;
         front = meshPayload.front;
-        this.mesh = mesh;
 
         if(mesh.geometry instanceof THREE.BufferGeometry) {
             // octree only makes sense if we are dealing with a true mesh
             // (not images). Such meshes are always BufferGeometry instances.
             this.octree = octree.octreeForBufferGeometry(mesh.geometry);
         }
+
+        this.mesh = mesh;
+
+
 
         this.sMesh.add(mesh);
         // Now we need to rescale the sMeshAndLms to fit in the unit sphere
@@ -345,22 +348,25 @@ export default Backbone.View.extend({
     // this is called whenever there is a state change on the THREE scene
     update: function () {
         if (!this.renderer) {
+            console.log('no renderer');
             return;
         }
         // if in batch mode - noop.
         if (atomic.atomicOperationUnderway()) {
+            console.log('atomic');
             return;
         }
-        //console.log('Viewport:update');
+
         // 1. Render the main viewport
         var w, h;
         w = this.width();
         h = this.height();
         this.renderer.setViewport(0, 0, w, h);
         this.renderer.setScissor(0, 0, w, h);
-        this.renderer.enableScissorTest(true);
+        this.renderer.enableScissorTest(false);
         this.renderer.clear();
         this.renderer.render(this.scene, this.sCamera);
+
 
         if (this.showConnectivity) {
             this.renderer.clearDepth(); // clear depth buffer
@@ -420,10 +426,10 @@ export default Backbone.View.extend({
 
     resetCamera: function () {
         // reposition the cameras and focus back to the starting point.
-        const v = this.model.meshMode() ? MESH_MODE_STARTING_POSITION :
+        const v = this.model.meshMode() || this.model.modelMode() ? MESH_MODE_STARTING_POSITION :
                                         IMAGE_MODE_STARTING_POSITION;
         this.cameraController.reset(
-            v, this.scene.position, this.model.meshMode());
+            v, this.scene.position, this.model.meshMode() || this.model.modelMode());
         this.update();
     },
 

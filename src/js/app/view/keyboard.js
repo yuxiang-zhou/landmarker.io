@@ -23,7 +23,7 @@ const SHORTCUTS = {
     }, false, false],
 
     "t": [function (lms, app) { // t = toggle [t]exture (mesh mode only)
-        if (app.meshMode()) {
+        if (app.meshMode() || app.modelMode()) {
             app.asset().textureToggle();
         }
     }, false, false],
@@ -38,7 +38,7 @@ const SHORTCUTS = {
     }, false, true],
 
     "c": [function (lms, app, viewport) { // c = toggle [c]amera mode
-        if (app.meshMode()) {
+        if (app.meshMode() || app.modelMode()) {
             viewport.toggleCamera();
         }
     }, false, false],

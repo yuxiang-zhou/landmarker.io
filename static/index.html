@@ -6,6 +6,7 @@
         window.location.href = "https:" + window.location.href.substring(5);
     }
 </script>
+
 <head>
     <title>Landmarker.io</title>
     <meta name="mobile-web-app-capable" content="yes">
@@ -39,176 +40,227 @@
 </head>
 <!-- errorception  -->
 <script>
-    (function(_,e,rr,s){_errs=[s];var c=_.onerror;_.onerror=function(){var a=arguments;_errs.push(a);
-        c&&c.apply(this,a)};var b=function(){var c=e.createElement(rr),b=e.getElementsByTagName(rr)[0];
-        c.src="//beacon.errorception.com/"+s+".js";c.async=!0;b.parentNode.insertBefore(c,b)};
-        _.addEventListener?_.addEventListener("load",b,!1):_.attachEvent("onload",b)})
-    (window,document,"script","54bd1c1bc6b8309b5c0018c4");
+    (function(_, e, rr, s) {
+        _errs = [s];
+        var c = _.onerror;
+        _.onerror = function() {
+            var a = arguments;
+            _errs.push(a);
+            c && c.apply(this, a)
+        };
+        var b = function() {
+            var c = e.createElement(rr),
+                b = e.getElementsByTagName(rr)[0];
+            c.src = "//beacon.errorception.com/" + s + ".js";
+            c.async = !0;
+            b.parentNode.insertBefore(c, b)
+        };
+        _.addEventListener ? _.addEventListener("load", b, !1) : _.attachEvent("onload", b)
+    })
+    (window, document, "script", "54bd1c1bc6b8309b5c0018c4");
 </script>
 <!-- Google Analytics -->
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    (function(i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function() {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 
-  ga('create', 'UA-52093814-2', 'auto');
+    ga('create', 'UA-52093814-2', 'auto');
     ga('send', 'pageview');
 </script>
+
 <body>
 
-<!-- MAIN LANDMARKER.IO APP -->
-<div class="Viewport" id="viewportContainer">
-    <!-- WebGL canvas (the actual assets and landmarks) -->
-    <div class="FullScreen" id="viewport"></div>
+    <!-- MAIN LANDMARKER.IO APP -->
+    <div class="Viewport" id="viewportContainer">
+        <!-- WebGL canvas (the actual assets and landmarks) -->
+        <div class="FullScreen" id="viewport"></div>
 
-    <!-- HTML5 canvas for 2D overlays, e.g. selection box, snap-mode hints -->
-    <canvas class="FullScreen" id="canvas"></canvas>
-    <!-- HTML5 canvas for Picture-in-Picture (PIP) view decoration -->
-    <canvas id="pipCanvas"></canvas>
-</div>
+        <!-- HTML5 canvas for 2D overlays, e.g. selection box, snap-mode hints -->
+        <canvas class="FullScreen" id="canvas"></canvas>
+        <!-- HTML5 canvas for Picture-in-Picture (PIP) view decoration -->
+        <canvas id="pipCanvas"></canvas>
+    </div>
 
-<div class="Chrome">
-    <!-- HTML UI -->
-    <div class="App-Flex-Vert">
-        <div class='TopBar' id='newVersionPrompt'></div>
-        <div class="App-Flex-Horiz">
-            <div class="App-Flex-LeftCol LeftSidebar">
-                <!-- Asset information  (top left) -->
-                <div class="AssetInfo">
-                  <div class="BackendName" id="backendName">
-                      <span class="content">-</span>
-                      <span class="octicon octicon-sign-out"></span>
-                  </div>
-                  <button class="CollectionName" id="collectionName">
+    <div class="Chrome">
+        <!-- HTML UI -->
+        <div class="App-Flex-Vert">
+            <div class='TopBar' id='newVersionPrompt'></div>
+            <div class="App-Flex-Horiz">
+                <div class="App-Flex-LeftCol LeftSidebar">
+                    <!-- Asset information  (top left) -->
+                    <div class="AssetInfo">
+                        <div class="BackendName" id="backendName">
+                            <span class="content">-</span>
+                            <span class="octicon octicon-sign-out"></span>
+                        </div>
+                        <button class="CollectionName" id="collectionName">
                       <span class="label">collection</span>
                       <span class="content">-</span>
                   </button>
-                  <button class="AssetName" id="assetName">
+                        <button class="AssetName" id="assetName">
                       <span class="label">asset</span>
                       <span class="content">-</span>
                   </button>
-                  <button class="AssetIndex" id="assetIndex">
+                        <button class="AssetIndex" id="assetIndex">
                     <span class="label">index</span>
                     <span class="content">-/-</span>
                   </button>
-                </div>
-                <!-- Toolbox itself (bottom left) -->
-                <div class="Toolbar" id="toolbar">
-                    <div class="Toolbar-Row" id="autosaveRow">
-                        <div class="Toolbar-Row-Item">Autosave</div>
-                        <div class="Toolbar-Row-Item">
-                            <div class="onoffswitch">
-                                <input type="checkbox" name="autosaveToggle" class="onoffswitch-checkbox" id="autosaveToggle">
-                                <label class="onoffswitch-label" for="autosaveToggle">
+                    </div>
+                    <!-- Toolbox itself (bottom left) -->
+                    <div class="Toolbar" id="toolbar">
+                        <div class="Toolbar-Row" id="autosaveRow">
+                            <div class="Toolbar-Row-Item">Autosave</div>
+                            <div class="Toolbar-Row-Item">
+                                <div class="onoffswitch">
+                                    <input type="checkbox" name="autosaveToggle" class="onoffswitch-checkbox" id="autosaveToggle">
+                                    <label class="onoffswitch-label" for="autosaveToggle">
                                     <div class="onoffswitch-inner"></div>
                                     <div class="onoffswitch-switch"></div>
                                 </label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="Toolbar-Row" id="editingRow">
-                        <div class="Toolbar-Row-Item">Snap</div>
-                        <div class="Toolbar-Row-Item">
-                            <div class="onoffswitch">
-                                <input type="checkbox" name="editingToggle" class="onoffswitch-checkbox" id="editingToggle">
-                                <label class="onoffswitch-label" for="editingToggle">
+                        <div class="Toolbar-Row" id="editingRow">
+                            <div class="Toolbar-Row-Item">Snap</div>
+                            <div class="Toolbar-Row-Item">
+                                <div class="onoffswitch">
+                                    <input type="checkbox" name="editingToggle" class="onoffswitch-checkbox" id="editingToggle">
+                                    <label class="onoffswitch-label" for="editingToggle">
                                     <div class="onoffswitch-inner"></div>
                                     <div class="onoffswitch-switch"></div>
                                 </label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="Toolbar-Row" id="textureRow">
-                        <div class="Toolbar-Row-Item">Texture</div>
-                        <div class="Toolbar-Row-Item">
-                        <div class="onoffswitch">
-                            <input type="checkbox" name="textureToggle" class="onoffswitch-checkbox" id="textureToggle">
-                            <label class="onoffswitch-label" for="textureToggle">
+                        <div class="Toolbar-Row" id="textureRow">
+                            <div class="Toolbar-Row-Item">Texture</div>
+                            <div class="Toolbar-Row-Item">
+                                <div class="onoffswitch">
+                                    <input type="checkbox" name="textureToggle" class="onoffswitch-checkbox" id="textureToggle">
+                                    <label class="onoffswitch-label" for="textureToggle">
                                 <div class="onoffswitch-inner"></div>
                                 <div class="onoffswitch-switch"></div>
                             </label>
+                                </div>
+                            </div>
                         </div>
-                        </div>
-                    </div>
-                    <div class="Toolbar-Row" id="connectivityRow">
-                        <div class="Toolbar-Row-Item">Links</div>
-                        <div class="Toolbar-Row-Item">
-                            <div class="onoffswitch">
-                                <input type="checkbox" name="connectivityToggle" class="onoffswitch-checkbox" id="connectivityToggle">
-                                <label class="onoffswitch-label" for="connectivityToggle">
+
+                        <div class="Toolbar-Row" id="connectivityRow">
+                            <div class="Toolbar-Row-Item">Links</div>
+                            <div class="Toolbar-Row-Item">
+                                <div class="onoffswitch">
+                                    <input type="checkbox" name="connectivityToggle" class="onoffswitch-checkbox" id="connectivityToggle">
+                                    <label class="onoffswitch-label" for="connectivityToggle">
                                     <div class="onoffswitch-inner"></div>
                                     <div class="onoffswitch-switch"></div>
                                 </label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="Toolbar-Row Toolbar-Slider" id="lmSizeRow">
-                        <div>&#9679;</div>
-                        <input type="range" name="points" min="0" max="100" id="lmSizeSlider">
-                    </div>
-                </div>
-            </div>
-            <!-- PREV/NEXT  (bottom centre) -->
-            <div class="App-Flex-Pager Pager" id="assetPager">
-                <div class="Pager-Item">
-                    <button class="Button-Basic" id="previous">&larr;</button>
-                </div>
-                <div class="Pager-Item">
-                    <button class="Button-Basic" id="next">&rarr;</button>
-                </div>
-            </div>
-            <!-- SIDEBAR  -->
-            <div class="App-Flex-RightCol RightSidebar">
-                <div class="RightSidebar-Controls" id="lmActionsPanel">
-                    <div class="RightSidebar-Controls-Item">
-                        <button class="Button-Save" title="Save remotely"
-                                id="save">Save</button>
-                    </div>
-                    <div class="RightSidebar-Controls-Item">
-                        <button class="Button-Save" title="Download the landmarks locally"
-                                id="download">Download</button>
-                    </div>
-                    <div class="RightSidebar-Controls-Item">
-                        <button class="Button-Basic" id="help"><span class="octicon octicon-question"></span></button>
+
+                        <div class="Toolbar-Row Toolbar-Slider" id="lmSizeRow">
+                            <div>&#9679;</div>
+                            <input type="range" name="points" min="0" max="100" id="lmSizeSlider">
+                        </div>
+
                     </div>
                 </div>
-                <div class="RightSidebar-Controls" id="lmLoadPanel">
-                    <div class="RightSidebar-Controls-Item">
-                        <button class="Button-Info" title="Load data from previous asset" id="loadPrevious">Copy Previous</button>
+                <!-- PREV/NEXT  (bottom centre) -->
+                <div class="App-Flex-Pager Pager" id="assetPager">
+                    <div class="Pager-Item">
+                        <button class="Button-Basic" id="previous">&larr;</button>
+                    </div>
+                    <div class="Pager-Item">
+                        <button class="Button-Basic" id="next">&rarr;</button>
                     </div>
                 </div>
-                <div class="RightSidebar-LandmarksPanel"
-                     id="landmarksPanel"></div>
-                <div class="RightSidebar-Header">
-                    <div class="RightSidebar-UndoRedo" id="undoRedo">
-                        <div class="Undo Disabled"><span class="octicon octicon-mail-reply"></span></div>
-                        <div class="Redo Disabled"><span class="octicon octicon-mail-reply"></span></div>
+                <!-- SIDEBAR  -->
+                <div class="App-Flex-RightCol RightSidebar">
+
+
+                    <div class="Action-Container" id="actionContainer">
+                        <div class="RightSidebar-Header">
+                            <div class="RightSidebar-UndoRedo" id="undoRedo">
+                                <div class="Undo Disabled"><span class="octicon octicon-mail-reply"></span></div>
+                                <div class="Redo Disabled"><span class="octicon octicon-mail-reply"></span></div>
+                            </div>
+                            <div class="RightSidebar-Template" id="templatePanel">
+                                <div class="RightSidebar-TemplatePicker" id="templatePicker"></div>
+                                <div class='TemplateName'>-</div>
+                            </div>
+                        </div>
+
+                        <div class="RightSidebar-LandmarksPanel" id="landmarksPanel"></div>
+
+                        <div class="RightSidebar-Controls" id="lmLoadPanel">
+                            <div class="RightSidebar-Controls-Item">
+                                <button class="Button-Info" title="Load data from previous asset" id="loadPrevious">Copy Previous</button>
+                            </div>
+                        </div>
+
+                        <div class="RightSidebar-Controls" id="lmActionsPanel">
+                            <div class="RightSidebar-Controls-Item">
+                                <button class="Button-Save" title="Save remotely" id="save">Save</button>
+                            </div>
+                            <div class="RightSidebar-Controls-Item">
+                                <button class="Button-Save" title="Download the landmarks locally" id="download">Download</button>
+                            </div>
+                            <div class="RightSidebar-Controls-Item">
+                                <button class="Button-Basic" id="help"><span class="octicon octicon-question"></span></button>
+                            </div>
+                        </div>
+
                     </div>
-                    <div class="RightSidebar-Template" id="templatePanel">
-                        <div class="RightSidebar-TemplatePicker" id="templatePicker"></div>
-                        <div class='TemplateName'>-</div>
+
+                    <div class="Toolbar-Right" id="pcToolbar">
+
+                        <div class="Toolbar-Row" id="pcActionsPanel">
+                            <div class="Toolbar-Row-Item">
+                                <button class="Button-Basic" title="Random Sample Faces" id="sample">Sample</button>
+                            </div>
+                            <div class="Toolbar-Row-Item">
+                                <button class="Button-Basic" title="Reset Faces" id="rest">Rest</button>
+                            </div>
+                        </div>
+
+                        <div class="Toolbar-Row Toolbar-Slider" id="pcSliderRow">
+                            <div class="Toolbar-Row-Item">PC:</div>
+                            <div><select name="pcSelect" id="pcSelect"></select></div>
+                            <input type="range" name="pcValue" min="-5" max="5" id="pcSlider" step='0.1'>
+                        </div>
                     </div>
+
+
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="CornerSpinner" id="globalSpinner"></div>
+    <div class="CornerSpinner" id="globalSpinner"></div>
 
-<div class="FullScreen ModalCentreFlex NotificationWrapper"
-     id="notificationOverlay">
-    <div id="loadingSpinner"></div>
-</div>
-
-<div class="FullScreen ModalCentreFlex ModalsWrapper" id="modalsWrapper"></div>
-
-<div class="FullScreen ModalCentreFlex">
-    <div class="HelpOverlay" id="helpOverlay">
-        <table class="HelpContentTable"><tbody></tbody></table>
+    <div class="FullScreen ModalCentreFlex NotificationWrapper" id="notificationOverlay">
+        <div id="loadingSpinner"></div>
     </div>
-</div>
+
+    <div class="FullScreen ModalCentreFlex ModalsWrapper" id="modalsWrapper"></div>
+
+    <div class="FullScreen ModalCentreFlex">
+        <div class="HelpOverlay" id="helpOverlay">
+            <table class="HelpContentTable">
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 
 </body>
+
 </html>

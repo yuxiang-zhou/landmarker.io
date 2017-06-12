@@ -131,6 +131,14 @@
     border-top-right-radius: $mainBorderRadius;
 }
 
+.Toolbar-Right {
+    opacity: .9;
+    background: $colorLightBlue;
+    width: $toolbarWidth;
+    padding: $mainControlPadding;
+    border-bottom-left-radius: $mainBorderRadius;
+}
+
 .Toolbar-Row {
     color: white;
     border: none;

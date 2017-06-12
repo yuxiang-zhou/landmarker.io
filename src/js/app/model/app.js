@@ -15,6 +15,7 @@ export default Backbone.Model.extend({
     defaults: function () {
         return {
             landmarkSize: 0.5,
+            pc1Value: 0,
             mode: 'mesh',
             connectivityOn: true,
             editingOn: true,
@@ -72,6 +73,10 @@ export default Backbone.Model.extend({
 
     meshMode: function () {
         return this.get('mode') === 'mesh';
+    },
+
+    modelMode: function () {
+        return this.get('mode') === 'model';
     },
 
     server: function () {
@@ -211,7 +216,8 @@ export default Backbone.Model.extend({
         const ASC = this._assetSourceConstructor();
         const assetSource = new ASC({
             server: this.server(),
-            id: this.activeCollection()
+            id: this.activeCollection(),
+            mode: this.get('mode')
         });
         if (this.has('assetSource')) {
             this.stopListening(this.get('assetSource'));
@@ -289,9 +295,11 @@ export default Backbone.Model.extend({
             return AssetSource.ImageSource;
         } else if (this.meshMode()) {
             return AssetSource.MeshSource;
+        } else if (this.modelMode()) {
+            return AssetSource.MeshSource;
         } else {
             console.error('WARNING - illegal mode setting on app! Must be' +
-                ' mesh or image');
+                ' mesh or image or model');
         }
     },
 

@@ -1,8 +1,9 @@
 // Main sidebar container
+
 .RightSidebar {
     flex-direction: column-reverse;
     align-items: flex-end;
-
+    justify-content: space-between;
     @media screen and (max-width: $breakpointsMobile) {
         display: none;
     }
@@ -14,10 +15,10 @@
 }
 
 .RightSidebar-Controls,
-.RightSidebar-LandmarksPanel,
-.RightSidebar-Header {
+.RightSidebar-Header,
+.RightSidebar-LandmarksPanel {
     display: flex;
-    opacity: .9;
+    opacity: 0.9;
 }
 
 .RightSidebar-Template {
@@ -27,8 +28,8 @@
     justify-content: center;
 }
 
-.TemplateName,
-.TemplateDownload {
+.TemplateDownload,
+.TemplateName {
     @extend %transitionAll;
     min-height: $mainControlHeight;
     line-height: $mainControlHeight;
@@ -73,8 +74,8 @@
     top: -16px;
     background-color: white;
     flex-flow: column;
-    right: .4em;
-    left: .4em;
+    right: 0.4em;
+    left: 0.4em;
     z-index: $zIndexNotifications;
     color: $colorDarkGray;
     cursor: pointer;
@@ -83,7 +84,7 @@
     input {
         @extend %transitionAll;
         display: inline;
-        padding: 0 .5em;
+        padding: 0 0.5em;
         margin: 2%;
         width: 96%;
         border: 2px solid $colorLightGray;
@@ -131,7 +132,7 @@
         line-height: 42px;
         text-align: left;
         margin: 0;
-        padding: 0 .5em;
+        padding: 0 0.5em;
         border-bottom: 1px dashed $colorLightGray;
 
         &:last-of-type {
@@ -204,10 +205,7 @@
     }
 }
 
-.RightSidebar-TemplatePicker {
-
-}
-
+.RightSidebar-TemplatePicker {}
 /* Special RightSidebar item used for rows (e.g. two buttons).
 is itself a row flexbox */
 .RightSidebar-Controls {
@@ -231,10 +229,9 @@ is itself a row flexbox */
     margin-left: 1px;
 
     &:last-of-type {
-      flex: 1;
+        flex: 1;
     }
 }
-
 /* Landmarks selector */
 .RightSidebar-LandmarksPanel {
     flex-direction: column;
@@ -245,8 +242,8 @@ is itself a row flexbox */
     position: relative;
 }
 
-.LmGroup-Label,
-.LmGroup-Flex {
+.LmGroup-Flex,
+.LmGroup-Label {
     width: 100%;
     height: 100%;
 }
@@ -275,21 +272,21 @@ is itself a row flexbox */
         flex-wrap: wrap;
 
         .Lm {
-            flex: 1 1 8%
+            flex: 1 1 8%;
         }
     }
 }
 
 .Lm {
     @extend %transitionAll;
-    opacity: .5;
+    opacity: 0.5;
     flex: 1;
     height: 30px;
     margin-left: 1px;
     margin-bottom: 1px;
 
     &:hover {
-        opacity: .75;
+        opacity: 0.75;
     }
 }
 
@@ -304,7 +301,6 @@ is itself a row flexbox */
 .Lm-Selected {
     background: $colorPurple;
 }
-
 
 .Lm-NextAvailable {
     background: $colorOrange;

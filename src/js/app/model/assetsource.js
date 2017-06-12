@@ -4,10 +4,12 @@ import Backbone from 'backbone';
 import _ from 'underscore';
 
 import * as Asset from './asset';
-import {loading} from '../view/notification';
+import {
+    loading
+} from '../view/notification';
 
-function abortAllObj (obj) {
-    _.values(obj).forEach(function (x) {
+function abortAllObj(obj) {
+    _.values(obj).forEach(function(x) {
         x.abort();
     });
 }
@@ -15,11 +17,14 @@ function abortAllObj (obj) {
 // Holds a list of available assets.
 const AssetSource = Backbone.Model.extend({
 
-    defaults: function () {
-        return { assets: new Backbone.Collection(), assetIsLoading: false };
+    defaults: function() {
+        return {
+            assets: new Backbone.Collection(),
+            assetIsLoading: false
+        };
     },
 
-    fetch: function () {
+    fetch: function() {
         return (
             this.get('server').fetchCollection(this.id).then((response) => {
                 this.set('assets', this.parse(response).assets);
@@ -27,55 +32,55 @@ const AssetSource = Backbone.Model.extend({
         );
     },
 
-    asset: function () {
+    asset: function() {
         return this.get('asset');
     },
 
-    assets: function () {
+    assets: function() {
         return this.get('assets');
     },
 
-    mesh: function () {
+    mesh: function() {
         const asset = this.asset();
         return asset ? asset.mesh() : undefined;
     },
 
-    assetIsLoading: function () {
+    assetIsLoading: function() {
         return this.get('assetIsLoading');
     },
 
-    nAssets: function () {
+    nAssets: function() {
         return this.get('assets').length;
     },
 
-    hasPredecessor: function () {
+    hasPredecessor: function() {
         return this.assetIndex() !== 0;
     },
 
-    hasSuccessor: function () {
+    hasSuccessor: function() {
         return this.nAssets() - this.assetIndex() !== 1;
     },
 
     // returns the index of the currently active mesh
-    assetIndex: function () {
+    assetIndex: function() {
         return this.assets().indexOf(this.get('asset'));
     },
 
-    next: function () {
+    next: function() {
         if (!this.hasSuccessor()) {
             return undefined;
         }
         return this.setAsset(this.assets()[this.assetIndex() + 1]);
     },
 
-    previous: function () {
+    previous: function() {
         if (!this.hasPredecessor()) {
             return undefined;
         }
         return this.setAsset(this.assets()[this.assetIndex() - 1]);
     },
 
-    setIndex: function (newIndex) {
+    setIndex: function(newIndex) {
         if (newIndex < 0 || newIndex >= this.nAssets()) {
             console.log(`Can't go to asset with index ${newIndex + 1}`);
             return null;
@@ -84,25 +89,33 @@ const AssetSource = Backbone.Model.extend({
         }
     },
 
-    updateMesh: function () {
+    updateMesh: function() {
         this.trigger('change:mesh');
     }
 });
 
 export const MeshSource = AssetSource.extend({
 
-    parse: function (response) {
-        const meshes = response.map((assetId) => {
-            return new Asset.Mesh({
-                id: assetId,
-                server: this.get('server')
-            });
+    parse: function(response) {
+        const meshes = [];
+
+        response.forEach((assetId) => {
+
+            if (!(assetId.includes('-pc-') && this.get('mode') === 'model')) {
+                meshes.push(new Asset.Mesh({
+                    id: assetId,
+                    server: this.get('server'),
+                    mode: this.get('mode')
+                }));
+            }
         });
 
-        return { assets: meshes };
+        return {
+            assets: meshes
+        };
     },
 
-    setAsset: function (newMesh) {
+    setAsset: function(newMesh) {
         var oldAsset = this.get('asset');
         // stop listening to the old asset
         if (oldAsset) {
@@ -147,7 +160,7 @@ export const MeshSource = AssetSource.extend({
             delete this.pending[newMesh.id];
             loading.stop(asyncId);
             this.set('assetIsLoading', false);
-        }, function (err) {
+        }, function(err) {
             loading.stop(asyncId);
             console.log('geometry.then something went wrong ' + err.stack);
         });
@@ -161,7 +174,7 @@ export const MeshSource = AssetSource.extend({
 // Also has a mesh parameter - the currently active mesh.
 export const ImageSource = AssetSource.extend({
 
-    parse: function (response) {
+    parse: function(response) {
         const images = response.map((assetId) => {
             return new Asset.Image({
                 id: assetId,
@@ -169,10 +182,12 @@ export const ImageSource = AssetSource.extend({
             });
         });
 
-        return { assets: images };
+        return {
+            assets: images
+        };
     },
 
-    setAsset: function (newAsset) {
+    setAsset: function(newAsset) {
         const oldAsset = this.get('asset');
         // stop listening to the old asset
         if (oldAsset) {
@@ -198,7 +213,7 @@ export const ImageSource = AssetSource.extend({
             console.log('grabbed new image texture');
             this.set('assetIsLoading', false);
             loading.stop(asyncId);
-        }, function (err) {
+        }, function(err) {
             loading.stop(asyncId);
             console.log('texture.then something went wrong ' + err.stack);
         });
