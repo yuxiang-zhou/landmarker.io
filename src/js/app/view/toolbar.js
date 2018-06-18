@@ -331,7 +331,6 @@ export const PCSelect = componentSlider.extend({
 
         var pc_value = this.model.get("pcValueAll");
         this.model.set("pcValuePre", _.clone(pc_value));
-        // this.model.set("pcValueAll", _.clone(pc_value.fill(0)));
 
 
         this.model.set("pcIndex", index);
@@ -352,8 +351,11 @@ export const PCSample = Backbone.View.extend({
         var pc_value = this.model.get("pcValueAll");
         this.model.set("pcValuePre", _.clone(pc_value));
 
+        if(!this.mesh)
+            this.mesh = this.model.asset();
+
         var new_pc = pc_value.map((v,i) => {
-            return i < 6 ? Math.random() * 10 - 5 : 0;
+            return i < this.mesh.max_pc ? Math.random() * 10 - 5 : 0;
         });
 
         this.model.set("pcValueAll", _.clone(new_pc));
@@ -380,11 +382,11 @@ export const PCRest = Backbone.View.extend({
 
         var pc_value = this.model.get("pcValueAll");
 
-        for(var i = this.mesh.max_pc; i < this.mesh.max_pc + this.mesh.max_exp; i++) {
-            var exp_i = i - this.mesh.max_pc;
-            pc_value[i] += this.mesh.restore_exp[exp_i];
-            this.mesh.restore_exp[exp_i] = 0;
-        }
+        // for(var i = this.mesh.max_pc; i < this.mesh.max_pc + this.mesh.max_exp; i++) {
+        //     var exp_i = i - this.mesh.max_pc;
+        //     pc_value[i] += this.mesh.restore_exp[exp_i];
+        //     this.mesh.restore_exp[exp_i] = 0;
+        // }
 
         this.model.set("pcValuePre", _.clone(pc_value));
         this.model.set("pcValueAll", _.clone(pc_value.fill(0)));

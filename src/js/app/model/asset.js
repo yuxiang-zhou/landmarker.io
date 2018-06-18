@@ -341,8 +341,8 @@ export const Mesh = Image.extend({
 
         // load principle components
         if (this.get('mode') === 'model') {
-            var max_pc = 3;
-            var max_exp = 28;
+            var max_pc = 12;
+            var max_exp = 6;
 
             this.max_pc = max_pc;
             this.max_exp = max_exp;

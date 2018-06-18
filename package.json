@@ -15,7 +15,7 @@
     "build:webpack": "webpack --config ./webpack/webpack.prod.config.js",
     "build:appcache": "sed 's/<html lang=\"en\">/<html lang=\"en\" manifest=\"lmio.appcache\">/g' ./build/index.html > tmp && mv tmp ./build/index.html",
     "build": "NODE_ENV=production npm run build:prep && npm run build:webpack && npm run build:appcache",
-    "watch:webpack-dev-server": "node --max-old-space-size=8192 ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config ./webpack/webpack.dev.config.js --public potoo02 --colours --content-base ./build",
+    "watch:webpack-dev-server": "node --max-old-space-size=8192 ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config ./webpack/webpack.dev.config.js --public 0.0.0.0 --colours --content-base ./build",
     "watch": "npm run build:prep && npm run watch:webpack-dev-server",
     "test": "mocha --compilers js:babel/register -R spec --recursive ./test",
     "coverage": "istanbul cover _mocha -- --compilers js:babel/register -R dot --recursive ./test",
