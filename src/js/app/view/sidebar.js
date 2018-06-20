@@ -7,6 +7,7 @@ import $ from 'jquery';
 import download from '../lib/download';
 import atomic from '../model/atomic';
 import TemplatePanel from './templates';
+import THREE from 'three';
 
 // Renders a single Landmark. Should update when constituent landmark
 // updates and that's it.
@@ -238,11 +239,25 @@ export const ActionsView = Backbone.View.extend({
     save: function (evt) {
         evt.stopPropagation();
         this.$el.find('#save').addClass('Button--Disabled');
+
+
+        if(this.app.selectMode()){
+            console.log(this.app.landmarks());
+            this.app.landmarks().insertNew(new THREE.Vector3(0.5, 0.5, 0));
+        }
+
         this.model.save().then(() => {
             this.$el.find('#save').removeClass('Button--Disabled');
+            if (this.app.selectMode()) {
+                this.app.nextAsset();
+            }
         }, () => {
             this.$el.find('#save').removeClass('Button--Disabled');
+            if (this.app.selectMode()) {
+                this.app.nextAsset();
+            }
         });
+
     },
 
     help: function (e) {
@@ -366,14 +381,25 @@ export default Backbone.View.extend({
 
         const lms = this.model.landmarks();
 
-        if (lms === null) {
+        if(this.model.selectMode()) {
+            $('#undoRedo').css("display", "none");
+            $('#templatePanel').css("display", "none");
+            $('#landmarksPanel').css("display", "none");
+            $('#lmLoadPanel').css("display", "none");
+            $('#download').css("display", "none");
+            
+        }
+
+        if (lms === null || lms === undefined) {
             return;
         }
+
 
         this.actionsView = new ActionsView({model: lms, app: this.model});
         this.lmLoadView = new LmLoadView({model: lms, app: this.model});
         this.undoRedoView = new UndoRedoView({model: lms});
         this.lmView = new LandmarkGroupListView({collection: lms.labels});
+        
         $('#landmarksPanel').html(this.lmView.render().$el);
     }
 });

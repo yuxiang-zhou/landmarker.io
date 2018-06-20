@@ -79,6 +79,10 @@ export default Backbone.Model.extend({
         return this.get('mode') === 'model';
     },
 
+    selectMode: function () {
+        return this.get('mode') === 'select';
+    },
+
     server: function () {
         return this.get('server');
     },
@@ -292,6 +296,8 @@ export default Backbone.Model.extend({
 
     _assetSourceConstructor: function () {
         if (this.imageMode()) {
+            return AssetSource.ImageSource;
+        } else if (this.selectMode()) {
             return AssetSource.ImageSource;
         } else if (this.meshMode()) {
             return AssetSource.MeshSource;

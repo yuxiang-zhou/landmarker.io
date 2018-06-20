@@ -197,7 +197,7 @@ function _loadDropboxTemplates (dropbox, u) {
 
 function resolveMode (server, u) {
     server.fetchMode().then(function (mode) {
-        if (mode === 'mesh' || mode === 'image' || mode === 'model') {
+        if (mode === 'mesh' || mode === 'image' || mode === 'model' || mode === 'select') {
             initLandmarker(server, mode, u);
         } else {
             retry('Received invalid mode', mode);

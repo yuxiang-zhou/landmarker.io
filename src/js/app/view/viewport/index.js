@@ -353,7 +353,6 @@ export default Backbone.View.extend({
         }
         // if in batch mode - noop.
         if (atomic.atomicOperationUnderway()) {
-            console.log('atomic');
             return;
         }
 
@@ -520,7 +519,7 @@ export default Backbone.View.extend({
         this.connectivityViews = [];
 
         var landmarks = this.model.get('landmarks');
-        if (landmarks === null) {
+        if (landmarks === null || landmarks === undefined) {
             // no actual landmarks available - return
             // TODO when can this happen?!
             return;
@@ -540,6 +539,8 @@ export default Backbone.View.extend({
                    viewport: that
                }));
         });
+
+        this.resize();
 
     }),
 

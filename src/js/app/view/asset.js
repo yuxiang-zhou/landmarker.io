@@ -153,6 +153,7 @@ export const AssetIndexView = Backbone.View.extend({
     },
 
     handleClick: function () {
+        console.log(his.model.landmarks());
 
         if (
             !this.model.landmarks() ||

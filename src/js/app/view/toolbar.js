@@ -18,6 +18,9 @@ export const LandmarkSizeSlider = Backbone.View.extend({
         this.listenTo(this.model, "change:landmarkSize", this.render);
         // set the size immediately.
         this.render();
+        if (this.model.selectMode()) {
+            this.model.set("landmarkSize", 10);
+        }
     },
 
     render: function() {
@@ -140,6 +143,7 @@ export const AutoSaveToggle = Backbone.View.extend({
         _.bindAll(this, 'render', 'toggle');
         this.listenTo(this.model, 'change:autoSaveOn', this.render);
         this.render();
+        this.model.set('autoSaveOn', true);
     },
 
     render: function() {
@@ -377,16 +381,8 @@ export const PCRest = Backbone.View.extend({
 
         if(!this.mesh)
             this.mesh = this.model.asset();
-        console.log(this.mesh.basic_exp);
-        console.log(this.mesh.restore_exp);
 
         var pc_value = this.model.get("pcValueAll");
-
-        // for(var i = this.mesh.max_pc; i < this.mesh.max_pc + this.mesh.max_exp; i++) {
-        //     var exp_i = i - this.mesh.max_pc;
-        //     pc_value[i] += this.mesh.restore_exp[exp_i];
-        //     this.mesh.restore_exp[exp_i] = 0;
-        // }
 
         this.model.set("pcValuePre", _.clone(pc_value));
         this.model.set("pcValueAll", _.clone(pc_value.fill(0)));
@@ -401,6 +397,7 @@ export default Backbone.View.extend({
     el: '#toolbar',
 
     initialize: function() {
+
         this.lmSizeSlider = new LandmarkSizeSlider({
             model: this.model
         });
@@ -410,6 +407,10 @@ export default Backbone.View.extend({
         this.editingToggle = new EditingToggle({
             model: this.model
         });
+        if (this.model.selectMode()) {
+            this.$el.parents().find('#toolbar').css("display", "none");
+        }
+
 
         if (this.model.meshMode() || this.model.modelMode()) {
             this.textureToggle = new TextureToggle({
@@ -433,6 +434,7 @@ export default Backbone.View.extend({
             }
         } else {
             // in image mode, we shouldn't even have these controls.
+            this.$el.parents().find('#pcToolbar').css("display", "none");
             this.$el.find('#textureRow').css("display", "none");
         }
         this.autosaveToggle = new AutoSaveToggle({
